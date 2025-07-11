@@ -290,7 +290,7 @@ void processCommandIfReady() {
 
 void discardBrokenCommandIfStale() {
   if (serialBuffer.length() > 0 && millis() - lastSerialReceive > serialTimeout) {
-    serialBuffer = ""; // очистка при таймауті
+    serialBuffer = ""; // clear when timeout is reached
   }
 }
 
@@ -299,10 +299,10 @@ void handleLeds() {
   static unsigned long lastLedCheck = 0;
   unsigned long now_lt = millis();
 
-  if (now_lt - lastLedCheck < 50) return; // максимум 20 fps
+  if (now_lt - lastLedCheck < 50) return; // max 20 fps
   lastLedCheck = now_lt;
 
-  // погасити старі
+  // light off old LEDs
   for (int i = 0; i < NUM_LEDS; i++) {
     if (leds[i].isOn && (now_lt - leds[i].onTime > leds[i].duration)) {
       leds[i].isOn = false;
@@ -311,7 +311,7 @@ void handleLeds() {
     }
   }
 
-  // активувати нові
+  // activate new LEDS
   if (now_lt - lastActivation >= nextActivationDelay) {
     int newCount = random(1, 5);
     for (int j = 0; j < newCount; j++) {
@@ -327,7 +327,7 @@ void handleLeds() {
     nextActivationDelay = random(1500, 5000);
   }
 
-  FastLED.show();  // тільки після змін
+  FastLED.show();  // show only after changes
 }
 
 void colorHue(uint8_t c1,uint8_t c2)
@@ -336,10 +336,10 @@ void colorHue(uint8_t c1,uint8_t c2)
   static unsigned long lastLedCheck = 0;
   unsigned long now_lt = millis();
 
-  if (now_lt - lastLedCheck < 50) return; // максимум 20 fps
+  if (now_lt - lastLedCheck < 50) return; // max 20 fps
   lastLedCheck = now_lt;
 
-  // погасити старі
+  // light off old LEDS
   for (int i = 0; i < NUM_LEDS; i++) {
     if (leds[i].isOn && (now_lt - leds[i].onTime > leds[i].duration)) {
       leds[i].isOn = false;
@@ -348,7 +348,7 @@ void colorHue(uint8_t c1,uint8_t c2)
     }
   }
 
-  // активувати нові
+  // activate new LEDs
   if (now_lt - lastActivation >= nextActivationDelay) {
     int newCount = random(1, 5);
     for (int j = 0; j < newCount; j++) {
@@ -356,7 +356,7 @@ void colorHue(uint8_t c1,uint8_t c2)
       leds[idx].isOn = true;
       leds[idx].onTime = now_lt;
       leds[idx].duration = random(5000, 15000);
-      byte yellowHue = random8(c1, c2); // Відтінки жовтого
+      byte yellowHue = random8(c1, c2); // Yellow colors by default
       leds[idx].color = CHSV(yellowHue, 255,random8(40, 70)); // Макс. насиченість і яскравість
       
       ledsArray[idx] = leds[idx].color;
@@ -398,13 +398,15 @@ void updateBreathingRainbow() {
 
 
 void setup() {
-  Serial.begin(9600);
-  mySerial.begin(9600);
+   Serial.begin(9600);
+   mySerial.begin(9600);
+   
    button1.attachClick(singleClkButtonBtn1);
    button1.attachLongPressStop(longPressButtonBtn1);
    button1.attachDoubleClick(doubleClkButtonBtn1);
-    button2.attachClick(singleClkButtonBtn2);
-    button3.attachClick(singleClkButtonBtn3);
+   
+   button2.attachClick(singleClkButtonBtn2);
+   button3.attachClick(singleClkButtonBtn3);
 
   if (!rtc.begin()) {
     Serial.println("RTC не знайдено");
@@ -418,9 +420,11 @@ void setup() {
 
   tm.begin();
   tm.setBrightness(5);
+  
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(ledsArray, NUM_LEDS);
-FastLED.setBrightness(40);
-Serial.println("LED Clock v0.2");
+  FastLED.setBrightness(40);
+  
+  Serial.println("LED Clock v0.2");
 
 }
 
@@ -435,6 +439,8 @@ void loop() {
   processCommandIfReady();
   discardBrokenCommandIfStale();
 
+
+  
  if(millis()-lastClick>WAIT_CLICK) {
   setTime=false;
   menuItem=0;
